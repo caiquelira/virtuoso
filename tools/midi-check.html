@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIDI Check</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --panel: #ffffff; --ink: #151b23; --muted: #5a6573; --rule: #d9dee5;
+    --accent: #2344b8; --accent-soft: #e6ebfa; --good: #1c7146; --warn: #955800; --warn-soft: #fbf0de; --bad: #b3261e;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e131a; --panel: #151c25; --ink: #e5eaf0; --muted: #9aa6b5; --rule: #273241;
+      --accent: #93a9ff; --accent-soft: #1a2342; --good: #5dc28c; --warn: #e6b15c; --warn-soft: #2b2213; --bad: #ff8a80;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  main { max-width: 960px; margin: 0 auto; padding: 28px 16px 64px; display: grid; gap: 20px; }
+  h1 { font-size: 1.6rem; margin: 0; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  p { margin: 0; }
+  .lede { color: var(--muted); max-width: 70ch; }
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--panel); cursor: pointer; }
+  button.secondary { background: transparent; color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .status { font-weight: 600; }
+  .status.ok { color: var(--good); } .status.warn { color: var(--warn); } .status.bad { color: var(--bad); }
+  ol.setup { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .92rem; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+  .log-wrap { max-height: 320px; overflow: auto; }
+  .big { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--rule); }
+  .dot.filled { background: var(--accent); border-color: var(--accent); }
+  .verdict { background: var(--accent-soft); border-radius: 6px; padding: 10px 12px; }
+  .verdict.warn { background: var(--warn-soft); }
+  textarea { width: 100%; min-height: 120px; font: .82rem ui-monospace, Consolas, monospace; background: var(--bg); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 8px; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+  <header class="row" style="justify-content:space-between">
+    <div style="display:grid;gap:6px">
+      <h1>MIDI Check</h1>
+      <p class="lede">Checks that your keyboard reaches the computer, which channels it uses, and how finely it measures how hard you play. That last part decides whether the game can grade voicing.</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>1. Set up the keyboard</h2>
+    <ol class="setup">
+      <li>Connect the keyboard's USB TO HOST port to the PC with a USB 2.0 A-to-B cable shorter than 3 m. No driver is needed.</li>
+      <li>Press <strong>PORTABLE GRAND</strong>. It resets to plain piano and turns Dual and Split off.</li>
+      <li>Press <strong>FUNCTION</strong> until <code>008 TouchRes</code> shows, then choose 2 (Medium) or 3 (Hard). Not 4 (Fixed), which plays every note at the same loudness.</li>
+    </ol>
+    <div class="row">
+      <button id="connect" type="button">Connect to MIDI</button>
+      <span id="status" class="status">Not connected</span>
+    </div>
+    <p id="inputs" class="lede"></p>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>2. Play anything</h2>
+      <div class="row" style="gap:24px">
+        <div><div class="lede">Last note</div><div id="lastNote" class="big">–</div></div>
+        <div><div class="lede">Velocity</div><div id="lastVel" class="big">–</div></div>
+        <div><div class="lede">Pedal</div><div id="pedal" class="big">–</div></div>
+      </div>
+      <p class="lede">Channels seen: <span id="channels">none yet</span>. One key press should show one channel. Two channels per press means Dual or Split is on.</p>
+    </section>
+
+    <section class="panel">
+      <h2>3. Velocity test</h2>
+      <p id="testPrompt">Press <strong>Start test</strong>, then play one key 8 times softly and 8 times loudly.</p>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <div class="row">
+        <button id="startTest" type="button">Start test</button>
+        <button id="resetTest" type="button" class="secondary">Reset</button>
+      </div>
+      <div id="testResult" hidden></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>4. Recent messages</h2>
+    <div class="log-wrap">
+      <table>
+        <thead><tr><th>Time (ms)</th><th>Channel</th><th>Message</th><th>Note</th><th>Value</th><th>Raw</th></tr></thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>5. Record a session (optional)</h2>
+    <p class="lede">Records note, release and pedal events in the game's test format, so the agents can test with your real playing. Save it into <code>fixtures/sessions/</code>.</p>
+    <div class="row">
+      <button id="rec" type="button">Start recording</button>
+      <button id="copy" type="button" class="secondary" disabled>Copy JSON</button>
+      <button id="save" type="button" class="secondary" disabled>Save file</button>
+      <span id="recStatus" class="lede"></span>
+    </div>
+    <textarea id="recOut" readonly aria-label="Recorded session JSON" hidden></textarea>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const NAMES = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+  const noteName = (n) => `${NAMES[n % 12]}${Math.floor(n / 12) - 1}`;
+  const TEST_PRESSES = 8;
+
+  let access = null;
+  const channelCounts = new Map();
+  let test = { phase: "idle", key: null, soft: [], loud: [] };
+  let recording = null;
+  let lastSession = null;
+
+  function parse(data, time) {
+    if (!data || data.length < 3) return null;
+    const status = data[0];
+    if (status < 0x80 || status >= 0xf0) return null;
+    const kind = status & 0xf0;
+    const channel = (status & 0x0f) + 1;
+    const a = data[1], b = data[2];
+    if (a > 127 || b > 127) return null;
+    if (kind === 0x90 && b > 0) return { type: "noteOn", note: a, velocity: b, channel, time };
+    if (kind === 0x90 || kind === 0x80) return { type: "noteOff", note: a, channel, time };
+    if (kind === 0xb0 && a === 64) return { type: "pedal", down: b >= 64, value: b, channel, time };
+    return null;
+  }
+
+  function setStatus(text, kind) {
+    const el = $("status");
+    el.textContent = text;
+    el.className = `status ${kind || ""}`;
+  }
+
+  function listInputs() {
+    const names = [];
+    for (const input of access.inputs.values()) {
+      names.push(`${input.name}${input.manufacturer ? ` (${input.manufacturer})` : ""}`);
+      input.onmidimessage = onMessage;
+    }
+    $("inputs").textContent = names.length
+      ? `Inputs: ${names.join(", ")}`
+      : "No MIDI input found. Check the cable and that the keyboard is on.";
+    if (names.length) setStatus("Connected. Play a key.", "ok");
+    else setStatus("Connected, but no keyboard found", "warn");
+  }
+
+  async function connect() {
+    if (!navigator.requestMIDIAccess) {
+      setStatus("This browser has no Web MIDI. Use Chrome or Edge.", "bad");
+      return;
+    }
+    setStatus("Waiting for permission. Allow MIDI in the browser prompt.", "warn");
+    try {
+      access = await navigator.requestMIDIAccess({ sysex: false });
+      access.onstatechange = listInputs;
+      listInputs();
+    } catch (err) {
+      setStatus("MIDI access was refused or failed. Allow it in the address bar's site settings, or open this page through the game's dev server (npm run dev).", "bad");
+      console.error(err);
+    }
+  }
+
+  function onMessage(msg) {
+    const raw = Array.from(msg.data);
+    const event = parse(msg.data, msg.timeStamp);
+    addLogRow(msg.timeStamp, raw, event);
+    if (!event) return;
+    channelCounts.set(event.channel, (channelCounts.get(event.channel) || 0) + (event.type === "noteOn" ? 1 : 0));
+    $("channels").textContent = [...channelCounts.entries()]
+      .filter(([, n]) => n > 0)
+      .map(([ch, n]) => `${ch} (${n} notes)`)
+      .join(", ") || "none yet";
+    if (event.type === "noteOn") {
+      $("lastNote").textContent = `${noteName(event.note)} · ${event.note}`;
+      $("lastVel").textContent = String(event.velocity);
+      onTestPress(event);
+    }
+    if (event.type === "pedal") $("pedal").textContent = event.down ? `down (${event.value})` : `up (${event.value})`;
+    if (recording) recording.push(event);
+  }
+
+  function addLogRow(time, raw, event) {
+    const tr = document.createElement("tr");
+    const cells = [
+      time.toFixed(1),
+      event ? String(event.channel) : "",
+      event ? event.type : "other",
+      event && "note" in event ? `${noteName(event.note)} (${event.note})` : "",
+      event ? String(event.type === "noteOn" ? event.velocity : event.type === "pedal" ? event.value : "") : "",
+      raw.map((b) => b.toString(16).padStart(2, "0")).join(" "),
+    ];
+    for (const text of cells) {
+      const td = document.createElement("td");
+      td.textContent = text;
+      tr.appendChild(td);
+    }
+    const body = $("log");
+    body.insertBefore(tr, body.firstChild);
+    while (body.children.length > 40) body.removeChild(body.lastChild);
+  }
+
+  function renderDots() {
+    const dots = $("dots");
+    dots.replaceChildren();
+    const filled = test.soft.length + test.loud.length;
+    for (let i = 0; i < TEST_PRESSES * 2; i++) {
+      const d = document.createElement("span");
+      d.className = `dot${i < filled ? " filled" : ""}`;
+      dots.appendChild(d);
+    }
+  }
+
+  function startTest() {
+    test = { phase: "soft", key: null, soft: [], loud: [] };
+    $("testResult").hidden = true;
+    $("testPrompt").innerHTML = `Play one key <strong>softly</strong>, ${TEST_PRESSES} times, as evenly as you can.`;
+    renderDots();
+  }
+
+  function resetTest() {
+    test = { phase: "idle", key: null, soft: [], loud: [] };
+    $("testResult").hidden = true;
+    $("testPrompt").innerHTML = "Press <strong>Start test</strong>, then play one key 8 times softly and 8 times loudly.";
+    renderDots();
+  }
+
+  function onTestPress(event) {
+    if (test.phase === "idle" || test.phase === "done") return;
+    if (test.key === null) test.key = event.note;
+    if (event.note !== test.key) return;
+    if (test.phase === "soft") {
+      test.soft.push(event.velocity);
+      if (test.soft.length === TEST_PRESSES) {
+        test.phase = "loud";
+        $("testPrompt").innerHTML = `Now play the same key (${noteName(test.key)}) <strong>loudly</strong>, ${TEST_PRESSES} times.`;
+      }
+    } else if (test.phase === "loud") {
+      test.loud.push(event.velocity);
+      if (test.loud.length === TEST_PRESSES) {
+        test.phase = "done";
+        $("testPrompt").textContent = "Done.";
+        showResult();
+      }
+    }
+    renderDots();
+  }
+
+  function stats(values) {
+    const n = values.length;
+    const mean = values.reduce((a, b) => a + b, 0) / n;
+    const sd = Math.sqrt(values.reduce((a, v) => a + (v - mean) ** 2, 0) / (n - 1));
+    return { mean, sd, min: Math.min(...values), max: Math.max(...values) };
+  }
+
+  function showResult() {
+    const soft = stats(test.soft);
+    const loud = stats(test.loud);
+    const all = [...test.soft, ...test.loud];
+    const distinct = new Set(all).size;
+    const gap = loud.mean - soft.mean;
+    const spread = Math.max(soft.sd, loud.sd);
+    let verdict;
+    let warn = false;
+    if (distinct === 1) {
+      verdict = "Every press had the same velocity. Touch Response is probably set to 4 (Fixed). Change it and run the test again.";
+      warn = true;
+    } else if (gap < 20) {
+      verdict = "Your soft and loud presses are close together. Try again with a bigger contrast, or set Touch Response to 3 (Hard).";
+      warn = true;
+    } else if (spread > 6) {
+      verdict = "The keyboard measures touch, but repeated presses vary quite a bit. The voicing margin may need to be larger than the default of 10. Send these numbers to Claude.";
+      warn = true;
+    } else {
+      verdict = "The keyboard measures touch finely enough to grade voicing with the default margin of 10.";
+    }
+    const el = $("testResult");
+    el.hidden = false;
+    el.innerHTML = `
+      <table>
+        <thead><tr><th></th><th>Mean</th><th>Spread (SD)</th><th>Min</th><th>Max</th></tr></thead>
+        <tbody>
+          <tr><td>Soft</td><td>${soft.mean.toFixed(1)}</td><td>±${soft.sd.toFixed(1)}</td><td>${soft.min}</td><td>${soft.max}</td></tr>
+          <tr><td>Loud</td><td>${loud.mean.toFixed(1)}</td><td>±${loud.sd.toFixed(1)}</td><td>${loud.min}</td><td>${loud.max}</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:8px">Gap between averages: <strong>${gap.toFixed(1)}</strong>. Different velocity values seen: <strong>${distinct}</strong> of 16 presses.</p>
+      <p class="verdict${warn ? " warn" : ""}" style="margin-top:8px">${verdict}</p>`;
+  }
+
+  function toggleRecording() {
+    if (!recording) {
+      recording = [];
+      $("rec").textContent = "Stop recording";
+      $("recStatus").textContent = "Recording…";
+      $("recOut").hidden = true;
+      return;
+    }
+    const events = recording;
+    recording = null;
+    $("rec").textContent = "Start recording";
+    const first = events.length ? events[0].time : 0;
+    const inputNames = access ? [...access.inputs.values()].map((i) => i.name) : [];
+    lastSession = {
+      version: 1,
+      ...(inputNames[0] ? { device: inputNames[0] } : {}),
+      recordedAt: new Date().toISOString(),
+      events: events.map((e) => ({ ...e, time: Math.round((e.time - first) * 10) / 10 })),
+    };
+    const json = JSON.stringify(lastSession, null, 1);
+    $("recOut").value = json;
+    $("recOut").hidden = false;
+    $("recStatus").textContent = `${events.length} events recorded.`;
+    $("copy").disabled = false;
+    $("save").disabled = false;
+  }
+
+  async function copyJson() {
+    try {
+      await navigator.clipboard.writeText($("recOut").value);
+      $("recStatus").textContent = "Copied.";
+    } catch {
+      $("recOut").select();
+      $("recStatus").textContent = "Select-all done. Press Ctrl+C to copy.";
+    }
+  }
+
+  function saveFile() {
+    const blob = new Blob([$("recOut").value], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `session-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  $("connect").addEventListener("click", connect);
+  $("startTest").addEventListener("click", startTest);
+  $("resetTest").addEventListener("click", resetTest);
+  $("rec").addEventListener("click", toggleRecording);
+  $("copy").addEventListener("click", copyJson);
+  $("save").addEventListener("click", saveFile);
+  renderDots();
+})();
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Piano Game
+# Virtuoso
 
 Learn classical piano pieces bar by bar from your own scores. The game shows the score, waits for
 you to play each step on a MIDI keyboard, lights the keys only when you need help, and grades

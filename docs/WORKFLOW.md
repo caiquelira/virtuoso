@@ -11,13 +11,10 @@ next agent.
 
 ## One-time setup
 
-1. **Repository.** Create an empty private GitHub repo named `piano-game`, then push this
-   starter pack:
-   ```
-   git remote add origin https://github.com/<you>/piano-game.git
-   git push -u origin main
-   ```
-   Tell Claude the repo name so it can read pull requests for review.
+1. **Repository.** The code lives in the private repo `caiquelira/virtuoso`. Give the Claude
+   GitHub app access to it (GitHub → Settings → Applications → Installed GitHub Apps → Claude →
+   Configure → Repository access) so Claude can review pull requests and push the contract
+   changes you ask for.
 2. **Agent machine.** Run Antigravity in a VM (Hyper-V or VirtualBox) or at least a separate
    Windows user that holds only this repo: no SSH keys, cloud credentials, password manager or
    work files. Install Node.js 22 LTS and Git, clone, and run `npm ci`, `npm run typecheck` and

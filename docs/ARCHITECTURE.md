@@ -1,4 +1,4 @@
-# Piano Game — Architecture
+# Virtuoso — Architecture
 
 Version 0.2 · 29 September 2026 · Owner: Claude (architect). Changes go through a decision
 record in `docs/decisions/`.

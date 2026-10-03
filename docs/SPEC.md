@@ -1,4 +1,4 @@
-# Piano Game — Product Spec
+# Virtuoso — Product Spec
 
 Version 0.2 · 29 September 2026 · Owner: Caíque (product), Claude (architecture)
 

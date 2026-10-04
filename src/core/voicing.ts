@@ -6,6 +6,7 @@
  * A step is well voiced when the melody note is louder than every other
  * required note by at least a margin.
  */
+import { requiredPitches, requiredPitchesForStaff } from "./steps";
 import type { MidiNote, Step } from "./types";
 
 /** Starting guess for the margin, in MIDI velocity units. Tune it from calibration data. */
@@ -49,9 +50,19 @@ export interface VoicingSummary {
  * override and staff 1 has no required note.
  */
 export function melodyPitch(step: Step, override?: MidiNote): MidiNote | null {
-  void step;
-  void override;
-  throw new Error("Not implemented yet (task T05)");
+  const req = requiredPitches(step);
+  if (req.length < 2) {
+    return null;
+  }
+  if (override !== undefined && req.includes(override)) {
+    return override;
+  }
+  const staff1 = requiredPitchesForStaff(step, 1);
+  const highestStaff1 = staff1[staff1.length - 1];
+  if (highestStaff1 === undefined) {
+    return null;
+  }
+  return highestStaff1;
 }
 
 /**
@@ -64,13 +75,79 @@ export function gradeVoicing(
   velocities: Readonly<Record<MidiNote, number>>,
   options: Partial<VoicingOptions> = {},
 ): VoicingResult | null {
-  void step;
-  void velocities;
-  void options;
-  throw new Error("Not implemented yet (task T05)");
+  const melody = melodyPitch(step, options.melodyOverride);
+  if (melody === null) {
+    return null;
+  }
+
+  const req = requiredPitches(step);
+  for (const pitch of req) {
+    if (velocities[pitch] === undefined) {
+      return null;
+    }
+  }
+
+  const melodyVelocity = velocities[melody];
+  if (melodyVelocity === undefined) {
+    return null;
+  }
+
+  const otherPitches = req.filter((pitch) => pitch !== melody);
+  if (otherPitches.length === 0) {
+    return null;
+  }
+
+  const otherVelocities: number[] = [];
+  for (const pitch of otherPitches) {
+    const v = velocities[pitch];
+    if (v === undefined) {
+      return null;
+    }
+    otherVelocities.push(v);
+  }
+
+  const loudestOther = Math.max(...otherVelocities);
+  const sumOther = otherVelocities.reduce((sum, v) => sum + v, 0);
+  const meanOther = sumOther / otherVelocities.length;
+  const lead = melodyVelocity - loudestOther;
+  const margin = options.marginVelocity ?? DEFAULT_VOICING_MARGIN;
+  const stoodOut = lead >= margin;
+
+  return {
+    stepIndex: step.index,
+    melody,
+    melodyVelocity,
+    loudestOther,
+    meanOther,
+    lead,
+    stoodOut,
+  };
 }
 
 export function summarizeVoicing(results: readonly VoicingResult[]): VoicingSummary {
-  void results;
-  throw new Error("Not implemented yet (task T05)");
+  if (results.length === 0) {
+    return {
+      graded: 0,
+      stoodOut: 0,
+      rate: null,
+      meanLead: null,
+    };
+  }
+
+  const graded = results.length;
+  let stoodOut = 0;
+  let totalLead = 0;
+  for (const r of results) {
+    if (r.stoodOut) {
+      stoodOut += 1;
+    }
+    totalLead += r.lead;
+  }
+
+  return {
+    graded,
+    stoodOut,
+    rate: stoodOut / graded,
+    meanLead: totalLead / graded,
+  };
 }

@@ -26,28 +26,34 @@ Run a single test file with `npx vitest run tests/core/wait-engine.test.ts`.
 
 ## How to do a task
 
-1. Create a branch `task/<id>-<short-name>`, e.g. `task/T03-wait-engine`.
-2. Set **Status** to `in progress` in your task file. Don't edit the board
+A coordinator (a Claude Code session) prepares your worktree on a branch such as
+`task/T03-wait-engine` before you start, and commits, pushes and opens the pull request after you
+stop. Don't run git.
+
+1. Set **Status** to `in progress` in your task file. Don't edit the board
    (`docs/tasks/README.md`); it is updated when your pull request is merged, which avoids merge
    conflicts between parallel agents.
-3. Implement only what the task lists, in the files it lists.
-4. Run the task's tests until they pass, then `npm run check:task -- <task id>`.
-5. Set **Status** to `in review`, fill in **Notes from the implementer**, and open a pull
-   request using the template. Stop there. A human merges.
+2. Implement only what the task lists, in the files it lists.
+3. Run the task's tests until they pass, then `npm run check:task -- <task id>`.
+4. Set **Status** to `in review` and fill in **Notes from the implementer**. Stop there. A human
+   merges.
+
+When nobody can approve commands during your run, run only the commands your prompt lists, typed
+exactly as listed. Any other command is denied, and the denial ends your run.
 
 ## Hard rules
 
 1. **Tests are contracts.** Never edit, skip, delete or weaken anything in `tests/` or
    `fixtures/` unless your task file explicitly lists that file as yours to change. If a test
-   looks wrong, stop, write the question under **Questions** in the task file, and say so in
-   the pull request.
+   looks wrong, stop and write the question under **Questions** in the task file; the
+   coordinator carries it into the pull request.
 2. **`src/core` stays pure.** No DOM, `window`, `document`, `navigator`, storage, OSMD,
    `performance.now()`, `Date.now()` or `Math.random()`. Time comes in as a parameter.
    `tests/architecture.test.ts` checks this.
 3. **OSMD only in** `src/adapters/osmd-steps.ts` and `src/ui/score-view.ts`.
-4. **Architect-owned files:** `AGENTS.md`, `.agents/`, `docs/SPEC.md`,
-   `docs/ARCHITECTURE.md`, `docs/decisions/`, and the Contract sections of task files. Don't
-   change them; propose changes in the pull request description.
+4. **Architect-owned files:** `AGENTS.md`, `CLAUDE.md`, `.agents/`, and everything in `docs/`
+   except the Status, Questions and Notes of your own task file. Don't change them; propose
+   changes under **Questions** in your task file.
 5. **Exported names and signatures are fixed** by the stub files and task files. You may add
    private helpers and new files inside the task's folder.
 6. **Dependencies:** add none unless the task file says so. Never change pinned versions.
@@ -69,14 +75,14 @@ Run a single test file with `npx vitest run tests/core/wait-engine.test.ts`.
   milestone M1 is complete, that is expected.
 - No test, fixture or architect-owned file changed (unless the task lists it).
 - The task file's Status and Notes are updated.
-- The pull request uses `.github/pull_request_template.md`, including the `check:task` output
-  and, for UI tasks, a screenshot.
+- The coordinator's pull request uses `.github/pull_request_template.md`, including the
+  `check:task` output and, for UI tasks, a screenshot.
 
 ## When stuck
 
-If the same failure survives two honest attempts, stop. Write what you tried, what failed and
-your best guess at the cause under **Questions** in the task file, push the branch, and open a
-draft pull request. Don't try random changes, and don't change tests to make them pass.
+If the same failure survives two honest attempts, write what you tried, what failed and your
+best guess at the cause under **Questions** in the task file, and stop. The coordinator takes
+over from there. Don't try random changes, and don't change tests to make them pass.
 
 ## Conventions
 

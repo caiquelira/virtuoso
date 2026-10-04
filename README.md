@@ -38,7 +38,10 @@ tests fail on purpose: they describe the work.
 | `docs/ARCHITECTURE.md` | How it's built; verified OSMD facts |
 | `docs/decisions/` | Decision records |
 | `docs/tasks/` | The task board and one file per task |
-| `docs/WORKFLOW.md` | How Caíque, Claude and the Antigravity agents work together |
+| `docs/WORKFLOW.md` | How Caíque, the driver (Claude Code) and the Antigravity agents work together |
+| `docs/RUNBOOK.md` | How the driver runs the agents: permissions, commands, prompt |
+| `docs/research/` | Background studies: PDF import test, comparison with other programs |
+| `CLAUDE.md` | The driver's brief, loaded by Claude Code in every session |
 | `AGENTS.md`, `.agents/rules/` | Rules the coding agents load automatically |
 | `src/core/` | Pure game logic |
 | `src/adapters/`, `src/input/` | OSMD parsing, Web MIDI, computer keyboard, replay |

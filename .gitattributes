@@ -1,0 +1,3 @@
+# Keep LF line endings in every checkout. Biome's format check fails on CRLF, which Git for
+# Windows produces by default (core.autocrlf=true).
+* text=auto eol=lf

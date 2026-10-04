@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| in review | T02–T05 | S |
+| done | T02–T05 | S |
 
 ## Goal
 

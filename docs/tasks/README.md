@@ -12,7 +12,7 @@ Milestone M1, the first playable slice. Each task is one branch and one pull req
 | [T06](T06-input-sources.md) | MIDI, computer-keyboard and replay inputs | done | T01 | M |
 | [T07](T07-score-view.md) | Score view and key strip | todo | T02 | L |
 | [T08](T08-first-slice.md) | Wire the first playable slice | todo | T01–T07 | L |
-| [T09](T09-review-fixes.md) | Follow-ups from the T02–T05 reviews | todo | T02–T05 | S |
+| [T09](T09-review-fixes.md) | Follow-ups from the T02–T05 reviews | done | T02–T05 | S |
 
 **Order.** T01–T05 are independent and can run in parallel. T06 needs T01, T07 needs T02, and
 T08 comes last.

@@ -16,9 +16,72 @@ import type { InputEvent } from "./types";
  * `n` is the channel nibble: 0x90 is channel 1, 0x9F is channel 16.
  */
 export function parseMidiMessage(data: ArrayLike<number>, time: number): InputEvent | null {
-  void data;
-  void time;
-  throw new Error("Not implemented yet (task T01)");
+  if (data.length !== 3) {
+    return null;
+  }
+
+  const status = data[0];
+  const d1 = data[1];
+  const d2 = data[2];
+
+  if (
+    status === undefined ||
+    d1 === undefined ||
+    d2 === undefined ||
+    !Number.isInteger(status) ||
+    !Number.isInteger(d1) ||
+    !Number.isInteger(d2) ||
+    status < 0x80 ||
+    status > 0xef ||
+    d1 < 0 ||
+    d1 > 127 ||
+    d2 < 0 ||
+    d2 > 127
+  ) {
+    return null;
+  }
+
+  const messageType = status & 0xf0;
+  const channel = (status & 0x0f) + 1;
+
+  if (messageType === 0x90) {
+    if (d2 > 0) {
+      return {
+        type: "noteOn",
+        note: d1,
+        velocity: d2,
+        channel,
+        time,
+      };
+    }
+    return {
+      type: "noteOff",
+      note: d1,
+      channel,
+      time,
+    };
+  }
+
+  if (messageType === 0x80) {
+    return {
+      type: "noteOff",
+      note: d1,
+      channel,
+      time,
+    };
+  }
+
+  if (messageType === 0xb0 && d1 === 64) {
+    return {
+      type: "pedal",
+      down: d2 >= 64,
+      value: d2,
+      channel,
+      time,
+    };
+  }
+
+  return null;
 }
 
 /**
@@ -36,5 +99,23 @@ export interface ChannelLock {
 }
 
 export function createChannelLock(): ChannelLock {
-  throw new Error("Not implemented yet (task T01)");
+  let lockedChannel: number | null = null;
+
+  return {
+    get channel(): number | null {
+      return lockedChannel;
+    },
+    accept(event: InputEvent): boolean {
+      if (lockedChannel === null) {
+        if (event.type === "noteOn") {
+          lockedChannel = event.channel;
+        }
+        return true;
+      }
+      return event.channel === lockedChannel;
+    },
+    reset(): void {
+      lockedChannel = null;
+    },
+  };
 }

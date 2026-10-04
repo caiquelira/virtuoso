@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | — | S |
+| in review | — | S |
 
 ## Goal
 
@@ -50,3 +50,8 @@ Running status across messages (Web MIDI delivers complete messages), system exc
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `parseMidiMessage` in `src/core/midi.ts` to parse complete 3-byte MIDI channel messages into `noteOn`, `noteOff`, or `pedal` (`InputEvent`), returning `null` for other controllers, program changes, pitch bends, system messages, messages shorter or longer than 3 bytes, non-integer or out-of-range data bytes (>127), and messages lacking a status byte.
+- Implemented `createChannelLock` in `src/core/midi.ts` to track and lock to the channel of the first `noteOn` event while allowing initial `noteOff` and `pedal` events through, filtering subsequent events to match the locked channel, and resetting upon `reset()`.
+- Successfully validated with `npm run check:task -- T01` (typecheck, Biome lint, architecture tests, steps tests, and midi unit tests all passing).
+

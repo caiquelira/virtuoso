@@ -1,9 +1,10 @@
 # Runs one coding agent for a task: worktree, npm ci, then agy without a terminal. See docs/RUNBOOK.md.
-# Usage: scripts/run-agent.ps1 -Id T06 -Name input-sources -Tests a.test.ts,b.test.ts [-Writes "src/ and docs/tasks/"] [-Note "..."] [-Extra "<failure text>"] [-Suffix retry]
+# Usage: scripts/run-agent.ps1 -Id T06 -Name input-sources -Tests a.test.ts,b.test.ts [-ExtraCommands "npm run check"] [-Writes "src/ and docs/tasks/"] [-Note "..."] [-Extra "<failure text>"] [-Suffix retry]
 param(
   [Parameter(Mandatory)][string]$Id,
   [Parameter(Mandatory)][string]$Name,
   [string[]]$Tests = @(),
+  [string[]]$ExtraCommands = @(),
   [string]$Writes = "src/ and docs/tasks/",
   [string]$Note = "",
   [string]$Extra = "",
@@ -30,7 +31,7 @@ if (-not (Test-Path (Join-Path $wt 'node_modules'))) {
   Pop-Location
 }
 
-$cmds = @("``npm run check:task -- $Id``") + @($Tests | ForEach-Object { "``npx vitest run $_``" }) + @("``npm run typecheck``", "``npm run lint``", "``npm run format``")
+$cmds = @("``npm run check:task -- $Id``") + @($Tests | ForEach-Object { "``npx vitest run $_``" }) + @($ExtraCommands | ForEach-Object { "``$_``" }) + @("``npm run typecheck``", "``npm run lint``", "``npm run format``")
 $prompt = "Implement docs/tasks/$Id-$Name.md. Follow AGENTS.md, except that your branch already exists and you don't commit, push or open a pull request: the coordinator does that. Change only the files the task lists, plus Status and the implementer sections of your task file. Stop when ``npm run check:task -- $Id`` passes, or after two honest attempts at the same failure, with your questions written under Questions in the task file.`n`nThis is a headless run: any terminal command outside this list is denied and ends your run at once. The only commands you may run are these, typed exactly as written, with no extra arguments, flags, pipes, ``cd`` or redirection: $($cmds -join ', '). Don't run git or any other command; use your file tools to read, search and edit files. You may write only under $Writes."
 if ($Note) { $prompt += "`n`n$Note" }
 if ($Extra) { $prompt += "`n`nA previous run left these failures; fix them:`n$Extra" }

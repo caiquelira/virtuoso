@@ -2,8 +2,8 @@
 
 | Who | Does |
 |---|---|
-| Caíque | Product decisions, play-tests on the real keyboard, merges pull requests |
-| The driver: Claude Code on Caíque's PC (`CLAUDE.md`) | Spec, architecture, contracts and tests, task files; runs the agents, checks and reviews their work, opens pull requests |
+| Caíque | Product decisions, play-tests on the real keyboard |
+| The driver: Claude Code on Caíque's PC (`CLAUDE.md`) | Spec, architecture, contracts and tests, task files; runs the agents, checks and reviews their work, opens and merges pull requests |
 | Antigravity agents | One task each, in their own worktree; the driver commits their work and opens the pull request |
 | Claude on claude.ai (Piano project) | Designed the project and wrote the starter pack; second opinion when Caíque asks |
 
@@ -36,7 +36,8 @@ next agent.
 3. The driver reviews the pull request against the spec and the tests, and sends must-fix items
    back to the agent. If an agent fails the same thing twice, the driver splits the task or fixes
    the contract.
-4. Caíque merges. The driver then sets the task to `done` on the board (`docs/tasks/README.md`).
+4. The driver merges once its review finds nothing that must be fixed (UI tasks only after
+   Caíque's play-test), then sets the task to `done` on the board (`docs/tasks/README.md`).
 
 ## Play-tests
 

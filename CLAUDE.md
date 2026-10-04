@@ -11,8 +11,8 @@ or reviews unless Caíque asks.
 
 | Who | Does |
 |---|---|
-| Caíque | Decides what the game does, play-tests on his Yamaha PSR-E363, merges pull requests |
-| You | Spec, architecture, tests and task files; run the agents, check and review their work, open pull requests, keep the board and docs true |
+| Caíque | Decides what the game does, play-tests on his Yamaha PSR-E363 |
+| You | Spec, architecture, tests and task files; run the agents, check and review their work, open and merge pull requests, keep the board and docs true |
 | Antigravity agents (`agy`) | Implement one task each, in their own worktree, under an exact allow-list |
 | Claude on claude.ai (Caíque's "Piano" project) | A second opinion, when Caíque asks for one |
 
@@ -36,9 +36,10 @@ its limit on 3 October). Spend your effort on planning, checking and reviewing.
   complex or ambiguous work.
 - He decides the product. You own the spec, architecture, decision records, tests and task files
   now, but ask him before a change alters what the game does, and say what changed and why.
-- He merges pull requests; you never do. Agent code reaches `main` only through pull requests.
-  Your own changes to docs, tests, task files and tooling may go straight to `main`, in small
-  commits that say why.
+- You merge pull requests yourself (Caíque's decision, 4 October 2026), but only when your review
+  found no must-fix items and the checks pass. Merge UI tasks only after Caíque's play-test.
+  Agent code reaches `main` only through pull requests. Your own changes to docs, tests, task
+  files and tooling may go straight to `main`, in small commits that say why.
 - He can follow and steer this session from his phone through Remote Control. Keep `status.md`
   current, so he (or Claude on claude.ai, which can read this folder) can catch up from it.
 
@@ -71,7 +72,7 @@ its limit on 3 October). Spend your effort on planning, checking and reviewing.
 
   Report findings as must fix, should fix and fine. Send must-fix items back to an agent in the
   same worktree, with details, then check again.
-- **After Caíque merges:** set the task to `done` on the board in a commit to `main`, remove its
+- **After merging:** set the task to `done` on the board in a commit to `main`, remove its
   worktree (`git worktree remove`), and start the tasks it unblocks.
 
 ## Where things are

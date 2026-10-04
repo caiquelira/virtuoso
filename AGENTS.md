@@ -35,8 +35,8 @@ stop. Don't run git.
    conflicts between parallel agents.
 2. Implement only what the task lists, in the files it lists.
 3. Run the task's tests until they pass, then `npm run check:task -- <task id>`.
-4. Set **Status** to `in review` and fill in **Notes from the implementer**. Stop there. A human
-   merges.
+4. Set **Status** to `in review` and fill in **Notes from the implementer**. Stop there. The coordinator
+   reviews and merges.
 
 When nobody can approve commands during your run, run only the commands your prompt lists, typed
 exactly as listed. Any other command is denied, and the denial ends your run.

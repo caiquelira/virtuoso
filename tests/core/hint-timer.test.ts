@@ -96,6 +96,20 @@ describe("HintTimer", () => {
     expect(() => new HintTimer({ downStep: 0 })).toThrow(RangeError);
   });
 
+  it("names the setting that cannot work", () => {
+    expect(() => new HintTimer({ target: 1 })).toThrow(/target/);
+    expect(() => new HintTimer({ minMs: 0 })).toThrow(/minMs/);
+    expect(() => new HintTimer({ minMs: 3000, maxMs: 2000 })).toThrow(/maxMs/);
+    expect(() => new HintTimer({ initialMs: 7000 })).toThrow(/initialMs/);
+    expect(() => new HintTimer({ downStep: 0 })).toThrow(/downStep/);
+  });
+
+  it("treats a saved delay that is not a finite number as missing", () => {
+    const t = new HintTimer({}, { 1: Number.NaN, 2: Number.POSITIVE_INFINITY });
+    expect(t.delayMs(1)).toBe(2000);
+    expect(t.delayMs(2)).toBe(2000);
+  });
+
   it.each([0.85, 0.75, 0.9])(
     "settles where a simulated reader succeeds %s of the time",
     (target) => {

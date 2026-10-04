@@ -80,25 +80,16 @@ export function gradeVoicing(
     return null;
   }
 
-  const req = requiredPitches(step);
-  for (const pitch of req) {
-    if (velocities[pitch] === undefined) {
-      return null;
-    }
-  }
-
   const melodyVelocity = velocities[melody];
   if (melodyVelocity === undefined) {
     return null;
   }
 
-  const otherPitches = req.filter((pitch) => pitch !== melody);
-  if (otherPitches.length === 0) {
-    return null;
-  }
-
   const otherVelocities: number[] = [];
-  for (const pitch of otherPitches) {
+  for (const pitch of requiredPitches(step)) {
+    if (pitch === melody) {
+      continue;
+    }
     const v = velocities[pitch];
     if (v === undefined) {
       return null;

@@ -62,7 +62,6 @@ export function stepsFromOsmd(
 
   const iterator = sheet.MusicPartManager.getIterator();
   const groupsByTimestamp = new Map<number, TimestampGroup>();
-  const seenNotes = new Set<unknown>();
 
   while (!iterator.EndReached) {
     const measureIndex = iterator.CurrentMeasureIndex;
@@ -92,12 +91,7 @@ export function stepsFromOsmd(
 
       const notes = voiceEntry.Notes ?? [];
       for (const note of notes) {
-        if (seenNotes.has(note)) {
-          continue;
-        }
-        seenNotes.add(note);
-
-        if (note.isRest()) {
+        if (note.isRest() || !note.Pitch) {
           continue;
         }
 

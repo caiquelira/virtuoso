@@ -52,29 +52,36 @@ export class HintTimer {
     };
 
     const { target, minMs, maxMs, initialMs, downStep } = merged;
-    if (
-      !Number.isFinite(target) ||
-      !Number.isFinite(minMs) ||
-      !Number.isFinite(maxMs) ||
-      !Number.isFinite(initialMs) ||
-      !Number.isFinite(downStep) ||
-      target <= 0.5 ||
-      target > 0.99 ||
-      minMs <= 0 ||
-      minMs > maxMs ||
-      initialMs < minMs ||
-      initialMs > maxMs ||
-      downStep <= 0
-    ) {
-      throw new RangeError("Invalid hint timer configuration");
+    if (!Number.isFinite(target) || target <= 0.5 || target > 0.99) {
+      throw new RangeError("target must be greater than 0.5 and at most 0.99");
+    }
+    if (!Number.isFinite(minMs) || minMs <= 0) {
+      throw new RangeError("minMs must be greater than 0");
+    }
+    if (!Number.isFinite(maxMs) || maxMs <= 0) {
+      throw new RangeError("maxMs must be greater than 0");
+    }
+    if (minMs > maxMs) {
+      throw new RangeError("minMs must be less than or equal to maxMs");
+    }
+    if (!Number.isFinite(initialMs) || initialMs < minMs || initialMs > maxMs) {
+      throw new RangeError("initialMs must be between minMs and maxMs");
+    }
+    if (!Number.isFinite(downStep) || downStep <= 0) {
+      throw new RangeError("downStep must be greater than 0");
     }
 
     this.#config = merged;
 
-    const clamp = (delay: number): number => Math.min(maxMs, Math.max(minMs, delay));
+    const resolveDelay = (savedDelay: number | undefined): number => {
+      if (savedDelay === undefined || !Number.isFinite(savedDelay)) {
+        return initialMs;
+      }
+      return Math.min(maxMs, Math.max(minMs, savedDelay));
+    };
     this.#delays = {
-      1: saved[1] !== undefined ? clamp(saved[1]) : initialMs,
-      2: saved[2] !== undefined ? clamp(saved[2]) : initialMs,
+      1: resolveDelay(saved[1]),
+      2: resolveDelay(saved[2]),
     };
   }
 

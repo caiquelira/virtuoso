@@ -18,6 +18,12 @@ const TASK_TESTS = {
   ],
   T07: [],
   T08: [],
+  T09: [
+    "tests/core/hint-timer.test.ts",
+    "tests/adapters/osmd-steps.test.ts",
+    "tests/core/wait-engine.test.ts",
+    "tests/core/voicing.test.ts",
+  ],
 };
 const ALWAYS = ["tests/architecture.test.ts", "tests/core/steps.test.ts"];
 

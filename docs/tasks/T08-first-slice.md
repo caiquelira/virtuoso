@@ -18,6 +18,7 @@ adaptive hints, voicing marks and an end-of-range summary. This completes milest
 
 - `src/app.ts`, `src/styles.css`, `index.html`
 - New files under `src/ui/` for screens, if you need them.
+- New test files under `tests/app/` for pure logic you extract. Don't touch any other test.
 
 ## Contract (architect-owned)
 
@@ -58,7 +59,10 @@ adaptive hints, voicing marks and an end-of-range summary. This completes milest
 ## Tests to pass
 
 `npm run check`. Add unit tests for any pure logic you extract (for example the first-contact
-rule), in new test files.
+rule), in new files under `tests/app/`, and run them with `npx vitest run tests/app/`.
+
+You can't open a browser in your run. The coordinator checks the screens with screenshots and
+tells you what to fix; Caíque then play-tests on the keyboard.
 
 ## Out of scope
 

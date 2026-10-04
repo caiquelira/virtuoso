@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | — | M |
+| in review | — | M |
 
 ## Goal
 
@@ -70,3 +70,13 @@ unzipping (OSMD does it).
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `stepsFromOsmd` and `parseScore` in `src/adapters/osmd-steps.ts` following all rules in the specification.
+- Configured `osmd.EngravingRules.CursorIgnoreRepetitions = true` to walk in written order.
+- Iterated through `Sheet.MusicPartManager.getIterator()`, grouping notes by `currentTimeStamp.RealValue` while recording the first measure index seen for each timestamp.
+- Targeted the first instrument with two staves (or first available instrument), mapping its staves to staff 1 and 2 and ignoring others.
+- Evaluated written pitch (`halfTone + 12`), expected folded pitch (`foldIntoRange`), voice, grace note, and tie continuation (`NoteTie.StartNote !== note`).
+- Filtered out timestamps without required notes, sorted steps by timestamp with consecutive index assignment, and sorted step notes by staff then pitch.
+- Parsed trimmed title and measure count from `osmd.Sheet`.
+- Ensured `parseScore` creates a detached instance without rendering and rejects with an `Error` on invalid score text.
+- Ran Biome formatting and verified all tests pass via `npm run check:task -- T02`.

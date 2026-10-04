@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | — | S |
+| in review | — | S |
 
 ## Goal
 
@@ -51,3 +51,11 @@ Deciding which attempts count (first contact is the app's job), persistence.
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `upStep(target, downStep)` using `downStep * target / (1 - target)`.
+- Implemented `HintTimer` class:
+  - Constructor validates `target` in `(0.5, 0.99]`, `minMs > 0`, `minMs <= maxMs`, `minMs <= initialMs <= maxMs`, `downStep > 0`, throwing `RangeError` on invalid values.
+  - Initializes staves 1 and 2 independently, clamping `saved` delays to `[minMs, maxMs]` or falling back to `initialMs`.
+  - `delays()` and getter `config` return shallow copies to maintain immutability.
+  - `record(staff, unaided)` multiplies the staff delay by `e^-downStep` or `e^upStep`, clamps to `[minMs, maxMs]`, updates internal state, and returns the new value.
+- All checks in `npm run check:task -- T04` pass cleanly (typecheck, lint, architecture tests, step tests, hint timer tests).

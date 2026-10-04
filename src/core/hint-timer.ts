@@ -34,41 +34,73 @@ export const TARGET_PRESETS = { gentle: 0.9, standard: 0.85, push: 0.75 } as con
 
 /** Upward step in natural-log units for a given target: downStep * target / (1 - target). */
 export function upStep(target: number, downStep: number): number {
-  void target;
-  void downStep;
-  throw new Error("Not implemented yet (task T04)");
+  return (downStep * target) / (1 - target);
 }
 
 export class HintTimer {
+  readonly #config: HintTimerConfig;
+  readonly #delays: Record<Staff, number>;
+
   /**
    * @param config Overrides for DEFAULT_HINT_TIMER. Throws RangeError if the result is invalid.
    * @param saved Delays restored from storage; each is clamped into [minMs, maxMs].
    */
   constructor(config: Partial<HintTimerConfig> = {}, saved: Partial<Record<Staff, number>> = {}) {
-    void config;
-    void saved;
-    throw new Error("Not implemented yet (task T04)");
+    const merged: HintTimerConfig = {
+      ...DEFAULT_HINT_TIMER,
+      ...config,
+    };
+
+    const { target, minMs, maxMs, initialMs, downStep } = merged;
+    if (
+      !Number.isFinite(target) ||
+      !Number.isFinite(minMs) ||
+      !Number.isFinite(maxMs) ||
+      !Number.isFinite(initialMs) ||
+      !Number.isFinite(downStep) ||
+      target <= 0.5 ||
+      target > 0.99 ||
+      minMs <= 0 ||
+      minMs > maxMs ||
+      initialMs < minMs ||
+      initialMs > maxMs ||
+      downStep <= 0
+    ) {
+      throw new RangeError("Invalid hint timer configuration");
+    }
+
+    this.#config = merged;
+
+    const clamp = (delay: number): number => Math.min(maxMs, Math.max(minMs, delay));
+    this.#delays = {
+      1: saved[1] !== undefined ? clamp(saved[1]) : initialMs,
+      2: saved[2] !== undefined ? clamp(saved[2]) : initialMs,
+    };
   }
 
   get config(): Readonly<HintTimerConfig> {
-    throw new Error("Not implemented yet (task T04)");
+    return { ...this.#config };
   }
 
   /** Current delay for one staff, in ms. */
   delayMs(staff: Staff): number {
-    void staff;
-    throw new Error("Not implemented yet (task T04)");
+    return this.#delays[staff];
   }
 
   /** Current delays for both staves, for saving or for WaitEngine.setHintDelays. */
   delays(): Record<Staff, number> {
-    throw new Error("Not implemented yet (task T04)");
+    return { ...this.#delays };
   }
 
   /** Records one reading attempt on a staff and returns the new delay. */
   record(staff: Staff, unaided: boolean): number {
-    void staff;
-    void unaided;
-    throw new Error("Not implemented yet (task T04)");
+    const current = this.#delays[staff];
+    const step = unaided
+      ? -this.#config.downStep
+      : upStep(this.#config.target, this.#config.downStep);
+    const next = current * Math.exp(step);
+    const clamped = Math.min(this.#config.maxMs, Math.max(this.#config.minMs, next));
+    this.#delays[staff] = clamped;
+    return clamped;
   }
 }

@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | — | M |
+| in review | — | M |
 
 ## Goal
 
@@ -72,3 +72,11 @@ Build the step's key sets once, when it starts, with `requiredPitches`,
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `WaitEngine` state machine in `src/core/wait-engine.ts` managing step progression across `from..to`.
+- Handled skipping steps with no playable notes and emitting `finished` when nothing is playable or when the last playable step completes.
+- Implemented `handle(noteOn)`: correct note tracking, ignoring duplicate presses within a step, and attributing wrong notes to the staff of the nearest missing pitch (breaking ties in favor of staff 1).
+- Implemented `tick(time)` hint mechanism: timing each staff independently, showing hints once per staff per step in ascending order, staff 1 before staff 2.
+- Implemented `stepCompleted` result construction: calculating `unaided` per staff (strictly before `startedAt + delay`, no wrong notes attributed, no hints shown), recording satisfied velocities, press timestamps, and wrong note logs.
+- Strict TypeScript adhered to with no `any`, no non-null assertions (`!`), and pure core state machine logic without browser or environment APIs.
+- Verified definition of done with `npm run check:task -- T03` (typecheck, lint, and all 34 relevant unit tests pass).

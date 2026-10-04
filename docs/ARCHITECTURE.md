@@ -129,6 +129,11 @@ behaviour.
 - `setOptions()` resets `cursorsOptions` to the default green cursor whenever a call omits
   them, so pass the same `cursorsOptions` in every `setOptions` call (found 4 October 2026).
 - On a chord, `gNote.getNoteheadSVGs()` returns every notehead of the chord, lowest first.
+- `drawFromMeasureNumber`/`drawUpToMeasureNumber` are 1-based positions only when the score has
+  no pickup bar. If `Sheet.SourceMeasures[0].ImplicitMeasure` is true, `render()` treats them as
+  printed bar numbers (pickup = 0). To draw indices `first..last` in every score, set
+  `EngravingRules.MinMeasureToDrawIndex`/`MaxMeasureToDrawIndex` directly and the matching
+  `Min/MaxMeasureToDrawNumber` (found 4 October 2026 with the BWV 269 sample).
 
 ## 7. Testing
 

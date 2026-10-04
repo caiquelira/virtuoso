@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | — | S |
+| in review | — | S |
 
 ## Goal
 
@@ -50,3 +50,8 @@ Held melody notes against moving accompaniment, dynamics marks, timing lead.
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `melodyPitch`: returns `null` if fewer than 2 distinct required keys, supports valid override key belonging to the required pitches, and otherwise defaults to the highest required pitch on staff 1 (or `null` if staff 1 has none).
+- Implemented `gradeVoicing`: grades steps having a melody and velocities for all required keys. Compares melody velocity against other required keys (ignoring extra velocity entries), calculating `loudestOther`, `meanOther`, `lead`, and `stoodOut` against the margin (default 10).
+- Implemented `summarizeVoicing`: aggregates `graded`, `stoodOut`, `rate`, and `meanLead` across graded steps (reporting `null` for rate and meanLead when empty).
+- All checks pass cleanly with strict typing and no linter warnings.

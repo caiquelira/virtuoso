@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | T01 | M |
+| in review | T01 | M |
 
 ## Goal
 
@@ -68,3 +68,20 @@ MIDI output, Bluetooth pairing UI, choosing among several keyboards (all inputs 
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `WebMidiInput` in `src/adapters/web-midi.ts`:
+  - Validates `navigator.requestMIDIAccess` existence and rejects naming Chrome or Edge if absent.
+  - Requests MIDI access with `{ sysex: false }` and rejects with an informative message on permission denial.
+  - Dynamically registers listeners on current inputs and future inputs via `statechange`, ensuring each input is listened to exactly once.
+  - Parses MIDI events using `parseMidiMessage` and filters through `ChannelLock`.
+  - `stop()` clears listeners and resets channel lock; supports duplicate invocations.
+- Implemented `FakeInput`, `codeToNote`, and `velocityFor` in `src/input/fake-input.ts`:
+  - Maps physical keys (`KeyboardEvent.code`) on the home row to MIDI notes (base C4 = 60).
+  - Handles octave shifting via `KeyZ` and `KeyX` clamped to `[-3, 3]`.
+  - Tracks active keys in a Map to ensure `keyup` releases the exact note triggered on `keydown`, even across octave changes.
+  - Ignores key repeat and uses Shift to toggle loud velocity.
+- Implemented `retime`, `SessionRecorder`, and `ReplayInput` in `src/input/replay.ts`:
+  - `retime` validates positive speed, sorts events by timestamp while preserving stable original order for ties, and shifts timing relative to the first event at `startTime`.
+  - `SessionRecorder` accumulates raw input events and produces `RecordedSession` with relative timings, omitting `device` when not supplied.
+  - `ReplayInput` retimes recorded sessions from `performance.now()` and schedules callbacks via `setTimeout`, cancelling pending timers on `stop()`.
+- Verified definition of done with `npm run check:task -- T06` (typecheck, Biome lint, and all 111 tests passed).

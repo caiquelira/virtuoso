@@ -21,43 +21,105 @@ export interface RecordedSession {
  * Throws RangeError if speed <= 0.
  */
 export function retime(events: readonly InputEvent[], startTime: number, speed = 1): InputEvent[] {
-  void events;
-  void startTime;
-  void speed;
-  throw new Error("Not implemented yet (task T06)");
+  if (speed <= 0 || Number.isNaN(speed)) {
+    throw new RangeError("Speed must be greater than zero");
+  }
+  if (events.length === 0) {
+    return [];
+  }
+
+  const indexed = events.map((event, index) => ({ event, index }));
+  indexed.sort((a, b) => {
+    if (a.event.time !== b.event.time) {
+      return a.event.time - b.event.time;
+    }
+    return a.index - b.index;
+  });
+
+  const first = indexed[0];
+  if (!first) {
+    return [];
+  }
+  const baseTime = first.event.time;
+
+  return indexed.map(({ event }) => ({
+    ...event,
+    time: startTime + (event.time - baseTime) / speed,
+  }));
 }
 
 /** Collects events while the player plays. Times are stored relative to the first event. */
 export class SessionRecorder {
-  constructor(device?: string) {
-    void device;
-  }
+  private rawEvents: InputEvent[] = [];
+
+  constructor(private device?: string) {}
 
   add(event: InputEvent): void {
-    void event;
-    throw new Error("Not implemented yet (task T06)");
+    this.rawEvents.push({ ...event });
   }
 
   /** The recording so far, ready for JSON.stringify. */
   toSession(recordedAt?: Date): RecordedSession {
-    void recordedAt;
-    throw new Error("Not implemented yet (task T06)");
+    const first = this.rawEvents[0];
+    const baseTime = first !== undefined ? first.time : 0;
+    const events = this.rawEvents.map((e) => ({
+      ...e,
+      time: e.time - baseTime,
+    }));
+
+    const session: RecordedSession = {
+      version: 1,
+      events,
+    };
+
+    if (this.device !== undefined) {
+      session.device = this.device;
+    }
+    const date = recordedAt ?? new Date();
+    session.recordedAt = date.toISOString();
+
+    return session;
   }
 }
 
 /** Plays a recorded session back through the KeyboardInput interface, in real time. */
 export class ReplayInput implements KeyboardInput {
   readonly name = "Recorded session";
+  private listener: InputListener | null = null;
+  private timers: Array<ReturnType<typeof setTimeout>> = [];
 
-  constructor(session: RecordedSession, speed = 1) {
-    void session;
-    void speed;
+  constructor(
+    private session: RecordedSession,
+    private speed = 1,
+  ) {
+    if (speed <= 0 || Number.isNaN(speed)) {
+      throw new RangeError("Speed must be greater than zero");
+    }
   }
 
   start(listener: InputListener): Promise<void> {
-    void listener;
-    return Promise.reject(new Error("Not implemented yet (task T06)"));
+    this.stop();
+    this.listener = listener;
+
+    const now = performance.now();
+    const scheduled = retime(this.session.events, now, this.speed);
+
+    for (const event of scheduled) {
+      const delay = Math.max(0, event.time - now);
+      const timer = setTimeout(() => {
+        this.listener?.(event);
+      }, delay);
+      this.timers.push(timer);
+    }
+
+    return Promise.resolve();
   }
 
-  stop(): void {}
+  stop(): void {
+    for (const timer of this.timers) {
+      clearTimeout(timer);
+    }
+    this.timers = [];
+    this.listener = null;
+  }
 }

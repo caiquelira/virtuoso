@@ -4,11 +4,11 @@ Milestone M1, the first playable slice. Each task is one branch and one pull req
 
 | Task | What | Status | Depends on | Size |
 |---|---|---|---|---|
-| [T01](T01-midi-messages.md) | Parse raw MIDI into events; channel lock | todo | — | S |
-| [T02](T02-score-steps.md) | MusicXML → steps through OSMD | todo | — | M |
-| [T03](T03-wait-engine.md) | Wait-mode engine | todo | — | M |
-| [T04](T04-hint-timer.md) | Adaptive hint delay (T1) | todo | — | S |
-| [T05](T05-voicing.md) | Voicing grade | todo | — | S |
+| [T01](T01-midi-messages.md) | Parse raw MIDI into events; channel lock | done | — | S |
+| [T02](T02-score-steps.md) | MusicXML → steps through OSMD | done | — | M |
+| [T03](T03-wait-engine.md) | Wait-mode engine | done | — | M |
+| [T04](T04-hint-timer.md) | Adaptive hint delay (T1) | done | — | S |
+| [T05](T05-voicing.md) | Voicing grade | done | — | S |
 | [T06](T06-input-sources.md) | MIDI, computer-keyboard and replay inputs | todo | T01 | M |
 | [T07](T07-score-view.md) | Score view and key strip | todo | T02 | L |
 | [T08](T08-first-slice.md) | Wire the first playable slice | todo | T01–T07 | L |

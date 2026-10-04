@@ -33,6 +33,11 @@ The original file is saved beside it as `settings.json.bak-2026-10-04`. To see t
 
 ## One run
 
+`scripts/run-agent.ps1` does steps 1 and 2: it creates the worktree if needed, runs `npm ci` if
+`node_modules` is missing, builds the prompt below from the task's id, test files, write folders
+and an optional note, saves it as `.coordination\runs\<id>.prompt.txt`, and runs `agy`. Its
+progress goes to `<id>.coord.txt`. Add the task's exact rules to the settings file first.
+
 1. `git worktree add ../worktrees/<id> -b task/<id>-<name> main`, then `npm ci` in that folder.
    Expect 6 to 9 minutes per `npm ci`.
 2. From the worktree, run the agent without a terminal:

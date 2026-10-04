@@ -67,12 +67,27 @@ export class ScoreView {
   /** Renders measures first..last (0-based, inclusive). */
   showMeasures(first: number, last: number): void {
     this.renderedRange = { first, last };
+    const hasPickup = Boolean(this.osmd.Sheet?.SourceMeasures?.[0]?.ImplicitMeasure);
+    const minNumber = hasPickup ? first : first + 1;
+    const maxNumber = hasPickup ? last : last + 1;
+
     // OSMD's setOptions() resets cursorsOptions to default green if omitted.
     this.osmd.setOptions({
-      drawFromMeasureNumber: first + 1,
-      drawUpToMeasureNumber: last + 1,
+      drawFromMeasureNumber: minNumber,
+      drawUpToMeasureNumber: maxNumber,
       cursorsOptions: ScoreView.CURSORS_OPTIONS,
     });
+
+    // In OSMD 2.1.3, when the first measure is a pickup (ImplicitMeasure), render() overrides
+    // MinMeasureToDrawIndex with MinMeasureToDrawNumber (if > 1) and MaxMeasureToDrawIndex
+    // with MaxMeasureToDrawNumber (if > 0). Setting Min/MaxMeasureToDrawIndex to first/last
+    // and setting Min/MaxMeasureToDrawNumber to first/last (with pickup) or first + 1/last + 1
+    // (without pickup) ensures exactly indices first..last are drawn in all cases.
+    this.osmd.EngravingRules.MinMeasureToDrawIndex = first;
+    this.osmd.EngravingRules.MaxMeasureToDrawIndex = last;
+    this.osmd.EngravingRules.MinMeasureToDrawNumber = minNumber;
+    this.osmd.EngravingRules.MaxMeasureToDrawNumber = maxNumber;
+
     this.osmd.render();
     this.osmd.cursor.show();
     this.reapplyMarks();

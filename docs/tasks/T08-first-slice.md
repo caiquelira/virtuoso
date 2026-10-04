@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | T01–T07 | L |
+| in review | T01–T07 | L |
 
 ## Goal
 
@@ -84,3 +84,30 @@ Persistence, library, PDF view, tempo or flow mode, melody override.
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `startApp(root: HTMLElement)` in `src/app.ts`:
+  - **Start screen**: "Try the sample" loads `samples/bach-bwv269-opening.musicxml` (`?raw`); file picker supports `.musicxml`, `.xml`, and `.mxl` (read as binary string for OSMD decompression).
+  - **Input selection**: Defaults to MIDI keyboard with `WebMidiInput`; asks for MIDI permission only following a user click ("Connect MIDI" button, switching to MIDI keyboard radio, or "Start playing" with MIDI selected). Initial message directs the player to click Connect MIDI. Supports `FakeInput` for computer keyboard with guide.
+  - **Bar range**: Defaults to first two bars (1–2), validates and clamps within score measure count.
+  - **Playing view**: Renders the current and next bar via `ScoreView.showMeasures`; whenever cursor advances into a new bar, re-renders so that bar is first. If `moveTo` throws, stops playing and presents an on-screen error banner.
+  - **Wait engine & key strip**: Drives `WaitEngine` on animation frame (`requestAnimationFrame` + `tick(performance.now())`) and input events. Note correct/wrong/hint/pressed events update `ScoreView` notes and `KeyStrip`.
+  - **Voicing & first contact**: Evaluates voicing on `stepCompleted` and adds melody marks (`melodyStoodOut` vs `melodyWeak`). Tracks first contact per bar with `FirstContactTracker`; `hintTimer.record` only fires during the first completion of a bar in the session.
+  - **Summary**: Displays steps played, share unaided for staff 1 & 2, voicing rate & mean lead, and T1 delays now. Provides "Loop again" (repeats preserve T1 values) and "Change bars" buttons.
+  - **Settings modal**: Allows editing target preset (gentle, standard, push), min/max T1, and voicing margin. Validates that shortest T1 <= longest T1 before saving, displaying an inline error message if invalid. Clamps `initialMs` into `[minMs, maxMs]` to guarantee `HintTimer` never throws `RangeError`.
+- Fixes applied per review:
+  - **Pickup bars (ScoreView)**: Fixed `ScoreView.showMeasures` by setting `EngravingRules.MinMeasureToDrawIndex = first`, `MaxMeasureToDrawIndex = last`, and matching `MinMeasureToDrawNumber`/`MaxMeasureToDrawNumber` to `first`/`last` when pickup exists or `first + 1`/`last + 1` otherwise, preventing OSMD's implicit measure override from misaligning rendered bars.
+  - **MIDI access on user gesture**: Removed `connectMidi()` on page mount; only triggers after a click.
+  - **Settings validation and safe initialMs**: Added `clampInitialMs`, `getHintTimerConfig`, and `validateSettings` in `src/settings.ts`, with tests in `tests/app/settings.test.ts`.
+  - **Play error reporting**: Caught `moveTo` errors, immediately terminating the game loop and displaying the error on screen.
+  - **Start screen bar inputs width**: Added `width: 100%; box-sizing: border-box; min-width: 0;` to `.range-inputs input[type="number"]` and `min-width: 0;` to `.range-inputs label`.
+- Extracted pure logic:
+  - `src/first-contact.ts`: `FirstContactTracker`
+  - `src/summary.ts`: `buildPracticeSummary`, formatting helpers
+  - `src/range.ts`: `findRangeStepIndices`, `defaultBarRange`, `clampBarRange`
+  - `src/settings.ts`: `createDefaultSettings`, `updatePreset`, `clampInitialMs`, `getHintTimerConfig`, `validateSettings`
+- Unit tests added in `tests/app/`:
+  - `tests/app/first-contact.test.ts`
+  - `tests/app/summary.test.ts`
+  - `tests/app/range.test.ts`
+  - `tests/app/settings.test.ts`
+- Added styling in `src/styles.css` for app layout, screens, panels, summary cards, and settings modal.

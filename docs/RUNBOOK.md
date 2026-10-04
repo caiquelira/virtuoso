@@ -27,20 +27,29 @@ The original file is saved beside it as `settings.json.bak-2026-10-04`. To see t
   and `command(npm run format)`. File writes: `write_file(src/)` and `write_file(docs/tasks/)`.
 - Nothing else: no git, no `npm ci` or `npm install`, no dev server. Add a task's rules before its
   run; leaving them afterwards is harmless.
+- `/permissions` lists these rules under the `global` scope. The `shared` scope
+  (`%USERPROFILE%\.gemini\config\config.json`, also used by the Antigravity desktop app) adds
+  `read_url` grants for a few hosts, github.com among them. He chose to keep them (4 October 2026).
 
 ## One run
 
 1. `git worktree add ../worktrees/<id> -b task/<id>-<name> main`, then `npm ci` in that folder.
-   Expect 6 to 8 minutes per `npm ci`.
+   Expect 6 to 9 minutes per `npm ci`.
 2. From the worktree, run the agent without a terminal:
-   `agy -p "<prompt>" --output-format stream-json --print-timeout <limit>`.
+   `agy -p "<prompt>" --output-format stream-json --print-timeout 60m`.
    Save its standard output to `.coordination\runs\<id>.out.txt` and its standard error to
    `<id>.err.txt`, in the main checkout. stream-json records every tool call, so you can see what
-   the agent ran and what was denied.
+   the agent ran and what was denied: search the output for `"CommandLine"` and
+   `denied_actions`.
 3. A run without a terminal can't ask for approval: a command that isn't allowed is denied, and
-   the denial ends the run. Three of T01's four runs ended that way.
-4. Run at most two agents at a time. Each T01–T05 run took 3 to 7 minutes.
-5. Don't use `--sandbox`: without a terminal it denies every npm command.
+   the denial ends the run with exit code 0, an empty response and a `jetski: no output
+   produced` line on standard error. Three of T01's four runs ended that way (`git status`
+   twice, then `npx vitest run …` under a prefix rule).
+4. Run at most two agents at a time. The successful T01–T05 runs took 3 to 7 minutes each.
+5. Don't use `--sandbox`: without a terminal it denied `npm run lint`, asking for an
+   `unsandboxed` grant, a rule kind agy has deprecated.
+6. After each run, check that no agent processes are left over. T02's run printed
+   `root agent idle; waiting up to 1h0m0s for 1 background task(s)` but still exited normally.
 
 ## The prompt that worked
 
@@ -50,11 +59,15 @@ The original file is saved beside it as `settings.json.bak-2026-10-04`. To see t
 > `npm run check:task -- <id>` passes, or after two honest attempts at the same failure, with
 > your questions written under Questions in the task file.
 >
-> This run has no terminal for approvals: a command that isn't on this list is denied and ends
-> your run. Run only these, typed exactly: `npm run check:task -- <id>`,
+> This is a headless run: any terminal command outside this list is denied and ends your run at
+> once. The only commands you may run are these, typed exactly as written, with no extra
+> arguments, flags, pipes, `cd` or redirection: `npm run check:task -- <id>`,
 > `npx vitest run <test file>`, `npm run typecheck`, `npm run lint`, `npm run format`. Don't run
-> git or any other command; read and edit with your file tools. Write only under `src/` and
-> `docs/tasks/`.
+> git or any other command; use your file tools to read, search and edit files. You may write
+> only under src/ and docs/tasks/.
+
+This is the exact text of T01's fourth run and of the T02–T05 runs. With more than one test file,
+list each `npx vitest run <file>` command.
 
 ## After the run
 

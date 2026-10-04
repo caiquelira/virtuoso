@@ -48,8 +48,8 @@ The `WaitEngine` class, `WaitEngineOptions`, `EngineOutput`, `StepResult`, `Staf
    (ascending). Staff 1 before staff 2. At most one hint per staff per step.
 7. Delays are read when checked, so `setHintDelays` affects the running step.
 8. Staff outcome: `unaided` = every required key of the staff pressed strictly before
-   `startedAt + delay` (delay in effect at completion) **and** no wrong note attributed to it.
-   `hinted` = its hint was emitted. `wrongNotes` = count attributed to it. One outcome per staff
+   `startedAt + delay` (delay in effect at completion), no wrong note attributed to it **and**
+   its hint not shown. `hinted` = its hint was emitted. `wrongNotes` = count attributed to it. One outcome per staff
    with required keys, staff 1 first.
 
 ## Tests to pass

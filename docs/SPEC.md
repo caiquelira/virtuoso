@@ -77,7 +77,7 @@ later (section 11).
 The wait before keys light up adapts to the player, separately for each staff.
 
 - **Unaided read** for a staff in a step: every required key of that staff pressed strictly
-  before `start + T1`, and no wrong note attributed to that staff.
+  before `start + T1`, no wrong note attributed to that staff, and no hint shown for it.
 - Wrong notes are attributed to the staff of the nearest key still missing (ties: staff 1).
 - After an unaided read, T1 is multiplied by `e^-0.04` (about −4%). Otherwise it is multiplied
   by `e^(0.04 · p / (1 − p))`, where `p` is the target share of unaided reads. With `p` = 0.85

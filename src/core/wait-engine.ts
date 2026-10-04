@@ -29,8 +29,8 @@ export interface WrongNote {
 export interface StaffOutcome {
   staff: Staff;
   /**
-   * Every required pitch of this staff was pressed before startedAt + hint delay,
-   * and no wrong note was attributed to this staff.
+   * Every required pitch of this staff was pressed before startedAt + hint delay, no wrong
+   * note was attributed to this staff, and its hint was not shown.
    */
   unaided: boolean;
   /** The hint for this staff was shown during the step. */

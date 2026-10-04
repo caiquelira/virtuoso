@@ -1,13 +1,168 @@
 :root {
   color-scheme: light dark;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Note mark colors — light mode */
+  --mark-correct: #16a34a;
+  --mark-hinted: #d97706;
+  --mark-melody: #2563eb;
+  --mark-wrong: #dc2626;
+
+  /* Score panel mark colors — readable on white paper in both themes */
+  --score-mark-correct: #16a34a;
+  --score-mark-hinted: #d97706;
+  --score-mark-melody: #2563eb;
+
+  /* KeyStrip colors — light mode */
+  --key-white: #ffffff;
+  --key-border: #cbd5e1;
+  --key-black: #1e293b;
+  --key-black-border: #0f172a;
+  --key-label: #64748b;
+  --key-white-pressed: #e2e8f0;
+  --key-black-pressed: #475569;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Note mark colors — dark mode */
+    --mark-correct: #4ade80;
+    --mark-hinted: #fbbf24;
+    --mark-melody: #60a5fa;
+    --mark-wrong: #f87171;
+
+    --score-mark-correct: #16a34a;
+    --score-mark-hinted: #d97706;
+    --score-mark-melody: #2563eb;
+
+    /* KeyStrip colors — dark mode */
+    --key-white: #f1f5f9;
+    --key-border: #475569;
+    --key-black: #0f172a;
+    --key-black-border: #020617;
+    --key-label: #64748b;
+    --key-white-pressed: #cbd5e1;
+    --key-black-pressed: #334155;
+  }
+}
+
+[data-theme="dark"] {
+  --mark-correct: #4ade80;
+  --mark-hinted: #fbbf24;
+  --mark-melody: #60a5fa;
+  --mark-wrong: #f87171;
+
+  --score-mark-correct: #16a34a;
+  --score-mark-hinted: #d97706;
+  --score-mark-melody: #2563eb;
+
+  --key-white: #f1f5f9;
+  --key-border: #475569;
+  --key-black: #0f172a;
+  --key-black-border: #020617;
+  --key-label: #64748b;
+  --key-white-pressed: #cbd5e1;
+  --key-black-pressed: #334155;
+}
+
+[data-theme="light"] {
+  --mark-correct: #16a34a;
+  --mark-hinted: #d97706;
+  --mark-melody: #2563eb;
+  --mark-wrong: #dc2626;
+
+  --score-mark-correct: #16a34a;
+  --score-mark-hinted: #d97706;
+  --score-mark-melody: #2563eb;
+
+  --key-white: #ffffff;
+  --key-border: #cbd5e1;
+  --key-black: #1e293b;
+  --key-black-border: #0f172a;
+  --key-label: #64748b;
+  --key-white-pressed: #e2e8f0;
+  --key-black-pressed: #475569;
+}
+
+/* Inside the score panel (white paper in both themes), marks must read well on white */
+.virtuoso-score,
+.score-card,
+#score-container,
+[data-theme="dark"] .virtuoso-score,
+[data-theme="dark"] .score-card,
+[data-theme="dark"] #score-container {
+  --mark-correct: var(--score-mark-correct, #16a34a);
+  --mark-hinted: var(--score-mark-hinted, #d97706);
+  --mark-melody: var(--score-mark-melody, #2563eb);
+}
+
 body {
   margin: 0;
 }
+
 .placeholder {
   max-width: 40rem;
   margin: 4rem auto;
   padding-inline: 1rem;
   line-height: 1.5;
+}
+
+/* KeyStrip keyboard styling */
+.key-strip {
+  width: 100%;
+  height: 90px;
+  display: block;
+  user-select: none;
+}
+
+.key-strip .key.white {
+  fill: var(--key-white);
+  stroke: var(--key-border);
+  stroke-width: 1;
+}
+
+.key-strip .key.black {
+  fill: var(--key-black);
+  stroke: var(--key-black-border);
+  stroke-width: 1;
+}
+
+.key-strip .key-label {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--key-label);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.key-strip .key.white.pressed {
+  fill: var(--key-white-pressed);
+}
+
+.key-strip .key.black.pressed {
+  fill: var(--key-black-pressed);
+}
+
+.key-strip .key.hint {
+  fill: var(--mark-hinted);
+}
+
+.key-strip .key.wrong {
+  fill: var(--mark-wrong);
+}
+
+.key-strip .key.white.hint,
+.key-strip .key.black.hint {
+  fill: var(--mark-hinted);
+}
+
+.key-strip .key.white.wrong,
+.key-strip .key.black.wrong {
+  fill: var(--mark-wrong);
+}
+
+/* Score melody marks */
+.virtuoso-melody-mark {
+  pointer-events: none;
 }

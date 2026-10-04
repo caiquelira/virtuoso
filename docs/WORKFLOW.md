@@ -36,8 +36,8 @@ next agent.
 3. The driver reviews the pull request against the spec and the tests, and sends must-fix items
    back to the agent. If an agent fails the same thing twice, the driver splits the task or fixes
    the contract.
-4. The driver merges once its review finds nothing that must be fixed (UI tasks only after
-   Caíque's play-test), then sets the task to `done` on the board (`docs/tasks/README.md`).
+4. The driver merges once its review finds nothing that must be fixed (a task whose file asks
+   for Caíque's play-test waits for it), then sets the task to `done` on the board (`docs/tasks/README.md`).
 
 ## Play-tests
 

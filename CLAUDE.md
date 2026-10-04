@@ -37,7 +37,8 @@ its limit on 3 October). Spend your effort on planning, checking and reviewing.
 - He decides the product. You own the spec, architecture, decision records, tests and task files
   now, but ask him before a change alters what the game does, and say what changed and why.
 - You merge pull requests yourself (Caíque's decision, 4 October 2026), but only when your review
-  found no must-fix items and the checks pass. Merge UI tasks only after Caíque's play-test.
+  found no must-fix items and the checks pass. A task whose file asks for Caíque's play-test
+  (T08 and later game tasks) waits for it; UI tasks checked by screenshots don't.
   Agent code reaches `main` only through pull requests. Your own changes to docs, tests, task
   files and tooling may go straight to `main`, in small commits that say why.
 - He can follow and steer this session from his phone through Remote Control. Keep `status.md`

@@ -10,7 +10,7 @@ Milestone M1, the first playable slice. Each task is one branch and one pull req
 | [T04](T04-hint-timer.md) | Adaptive hint delay (T1) | done | — | S |
 | [T05](T05-voicing.md) | Voicing grade | done | — | S |
 | [T06](T06-input-sources.md) | MIDI, computer-keyboard and replay inputs | done | T01 | M |
-| [T07](T07-score-view.md) | Score view and key strip | todo | T02 | L |
+| [T07](T07-score-view.md) | Score view and key strip | done | T02 | L |
 | [T08](T08-first-slice.md) | Wire the first playable slice | todo | T01–T07 | L |
 | [T09](T09-review-fixes.md) | Follow-ups from the T02–T05 reviews | done | T02–T05 | S |
 

@@ -126,6 +126,9 @@ behaviour.
   `cursor.next()` moves one position; `cursor.GNotesUnderCursor()` returns graphical notes;
   `gNote.setColor(color, { applyToNoteheads: true, applyToStem: true })` recolors without
   re-rendering. A re-render clears colors, so the view re-applies them.
+- `setOptions()` resets `cursorsOptions` to the default green cursor whenever a call omits
+  them, so pass the same `cursorsOptions` in every `setOptions` call (found 4 October 2026).
+- On a chord, `gNote.getNoteheadSVGs()` returns every notehead of the chord, lowest first.
 
 ## 7. Testing
 

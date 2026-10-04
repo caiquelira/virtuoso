@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | T02 | L |
+| in review | T02 | L |
 
 ## Goal
 
@@ -85,3 +85,22 @@ The game flow (T08), zooming, page turns, fingering display.
 ## Questions
 
 ## Notes from the implementer
+
+- Implemented `ScoreView` in `src/ui/score-view.ts`:
+  - One OSMD instance per view with SVG backend, `autoResize: false`, no title, composer or part names, and measure numbers on. Sets `CursorIgnoreRepetitions = true`.
+  - Cursor configured with neutral translucent blue-gray highlight (`color: "#64748b", alpha: 0.25`) kept in private constant `ScoreView.CURSORS_OPTIONS` and passed in every `setOptions` call (the constructor's and `showMeasures`) so OSMD does not reset to its default green cursor.
+  - `load(xml, range)` loads MusicXML into OSMD and returns steps via `stepsFromOsmd(this.osmd, { range })`.
+  - `showMeasures(first, last)` converts 0-based bar indices to 1-based OSMD options (`drawFromMeasureNumber`, `drawUpToMeasureNumber`), renders, shows the cursor, and reapplies remembered marks.
+  - `moveTo(step)` resets cursor and steps through with `cursor.next()` until matching `CurrentMeasureIndex` and `currentTimeStamp.RealValue`, safely aborting with an Error if the step is not drawn.
+  - `mark(step, pitch, mark)` applies `setColor` for `correct` and `hinted` using CSS variables (`--mark-correct`, `--mark-hinted`), and creates accent `<circle>` SVGs for `melodyStoodOut` (filled circle) and `melodyWeak` (hollow circle).
+  - Melody circles on chords pick the notehead corresponding to the melody note itself by its rank/`vfnoteIndex` in the chord. The circle is placed just above the notehead for top notes and single notes; for inner-voice melody notes with another notehead of the chord directly above, the circle is placed just to the left of the notehead to avoid covering other notes.
+  - Marks are remembered and re-applied after every render; `clearMarks()` clears marks and refreshes the score.
+  - Container is assigned `.virtuoso-score`, using mark colors scoped for high contrast on white paper in both light and dark themes.
+- Implemented `KeyStrip` in `src/ui/key-strip.ts`:
+  - Full-width SVG keyboard (~90px high) for the given range with each C labelled in scientific pitch (C2...C7) and `data-note` attributes on all keys.
+  - Handled `press`/`release` (faint fill), `showHint`/`clearHint` (strong amber fill), and `flashWrong` (400ms red flash timer).
+- Configured CSS variables and styling in `src/styles.css`:
+  - Defined high-contrast mark colors on white paper (`--score-mark-correct`, `--score-mark-hinted`, `--score-mark-melody`) for `.virtuoso-score` and `.score-card` in both light and dark modes.
+  - Maintained pale/bright mark colors (`#4ade80`, `#fbbf24`, `#60a5fa`, `#f87171`) for dark backgrounds like the key strip in dark mode.
+- Created `demo/view.html` and `demo/view.ts` loading `fixtures/musicxml/02-chords-accidentals-voices.musicxml` via Vite's `?raw` suffix with all required buttons (Previous step, Next step, Mark correct, Mark hinted, Melody stood out, Melody weak, Hint current keys, Clear), bar re-rendering when crossing bar boundaries, interactive key clicks, and a dark mode toggle.
+- `npm run check:task -- T07` passes completely with all typechecks, linter checks, and test suites passing.

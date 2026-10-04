@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Virtuoso — Score View &amp; Key Strip</title>
+    <style>
+      :root {
+        --demo-bg: #f8fafc;
+        --demo-panel: #ffffff;
+        --demo-ink: #0f172a;
+        --demo-muted: #64748b;
+        --demo-border: #e2e8f0;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --demo-bg: #090d16;
+          --demo-panel: #131b2e;
+          --demo-ink: #f1f5f9;
+          --demo-muted: #94a3b8;
+          --demo-border: #1e293b;
+        }
+      }
+      [data-theme="dark"] {
+        --demo-bg: #090d16;
+        --demo-panel: #131b2e;
+        --demo-ink: #f1f5f9;
+        --demo-muted: #94a3b8;
+        --demo-border: #1e293b;
+        color-scheme: dark;
+      }
+      [data-theme="light"] {
+        --demo-bg: #f8fafc;
+        --demo-panel: #ffffff;
+        --demo-ink: #0f172a;
+        --demo-muted: #64748b;
+        --demo-border: #e2e8f0;
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--demo-bg);
+        color: var(--demo-ink);
+        padding: 24px 16px 48px;
+        min-height: 100vh;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      .score-card {
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid var(--demo-border);
+        border-radius: 8px;
+        padding: 16px;
+        min-height: 240px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .keyboard-card {
+        background: var(--demo-panel);
+        border: 1px solid var(--demo-border);
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      button {
+        font: inherit;
+        font-size: 0.9rem;
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: 1px solid #2563eb;
+        background: #2563eb;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      button:hover {
+        background: #1d4ed8;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--demo-ink);
+        border-color: var(--demo-border);
+      }
+      button.secondary:hover {
+        background: var(--demo-border);
+      }
+      .status {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 0.85rem;
+        padding: 10px 14px;
+        background: var(--demo-panel);
+        border: 1px solid var(--demo-border);
+        border-radius: 6px;
+        color: var(--demo-muted);
+      }
+      .status strong {
+        color: var(--demo-ink);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Score View &amp; Key Strip Demo</h1>
+          <p style="margin: 4px 0 0; color: var(--demo-muted); font-size: 0.9rem;">
+            Exercise ScoreView and KeyStrip (T07) on fixture 02.
+          </p>
+        </div>
+        <button id="btn-theme" class="secondary" type="button">Toggle dark mode</button>
+      </header>
+
+      <section class="score-card">
+        <div id="score-container"></div>
+      </section>
+
+      <section class="keyboard-card">
+        <div id="key-strip-container"></div>
+      </section>
+
+      <section class="controls">
+        <button id="btn-prev" type="button">Previous step</button>
+        <button id="btn-next" type="button">Next step</button>
+        <button id="btn-correct" type="button">Mark correct</button>
+        <button id="btn-hinted" type="button">Mark hinted</button>
+        <button id="btn-melody-stood-out" type="button">Melody stood out</button>
+        <button id="btn-melody-weak" type="button">Melody weak</button>
+        <button id="btn-hint-keys" type="button">Hint current keys</button>
+        <button id="btn-clear" class="secondary" type="button">Clear</button>
+      </section>
+
+      <div id="status" class="status">Loading score...</div>
+    </main>
+    <script type="module" src="./view.ts"></script>
+  </body>
+</html>

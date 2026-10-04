@@ -110,12 +110,6 @@ export class WaitEngine {
     }
 
     const stepState = this.#initStep(firstPlayableIndex, time);
-    if (!stepState) {
-      this.#finished = true;
-      this.#currentStep = null;
-      return [{ type: "finished", time }];
-    }
-
     return [{ type: "stepStarted", stepIndex: stepState.index, time }];
   }
 
@@ -135,9 +129,6 @@ export class WaitEngine {
       const missingPitches = currentStep.requiredPitches.filter(
         (p) => !currentStep.pressedKeys.has(p),
       );
-      if (missingPitches.length === 0) {
-        return [];
-      }
 
       let minDist = Number.POSITIVE_INFINITY;
       for (const p of missingPitches) {
@@ -205,20 +196,11 @@ export class WaitEngine {
       const nextPlayableIndex = this.#findNextPlayableStep(currentStep.arrayIndex + 1);
       if (nextPlayableIndex !== null) {
         const nextStepState = this.#initStep(nextPlayableIndex, time);
-        if (nextStepState) {
-          outputs.push({
-            type: "stepStarted",
-            stepIndex: nextStepState.index,
-            time,
-          });
-        } else {
-          this.#finished = true;
-          this.#currentStep = null;
-          outputs.push({
-            type: "finished",
-            time,
-          });
-        }
+        outputs.push({
+          type: "stepStarted",
+          stepIndex: nextStepState.index,
+          time,
+        });
       } else {
         this.#finished = true;
         this.#currentStep = null;
@@ -296,10 +278,10 @@ export class WaitEngine {
     return null;
   }
 
-  #initStep(arrayIndex: number, time: number): StepState | null {
+  #initStep(arrayIndex: number, time: number): StepState {
     const step = this.#steps[arrayIndex];
     if (!step) {
-      return null;
+      throw new Error(`Step at index ${arrayIndex} not found`);
     }
     const reqPitches = requiredPitches(step);
     const stepState: StepState = {

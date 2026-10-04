@@ -2,7 +2,7 @@
 
 | Status | Depends on | Size |
 |---|---|---|
-| todo | T02–T05 | S |
+| in review | T02–T05 | S |
 
 ## Goal
 
@@ -60,3 +60,16 @@ Anything else in these files. `src/core/midi.ts` (its extra-length check is harm
 ## Questions
 
 ## Notes from the implementer
+
+- **HintTimer (`src/core/hint-timer.ts`)**:
+  - Saved delays that are not finite numbers (`NaN`, `±Infinity`) or are `undefined` fall back to `initialMs`; finite numbers remain clamped between `minMs` and `maxMs`.
+  - Config errors now throw descriptive `RangeError`s naming the exact setting in `HintTimerConfig` and what value is required (e.g. `minMs must be greater than 0`, `minMs must be less than or equal to maxMs` naming both `minMs` and `maxMs`, `target must be greater than 0.5 and at most 0.99`, etc.).
+- **osmd-steps (`src/adapters/osmd-steps.ts`)**:
+  - Notes without pitch (`!note.Pitch`) are skipped along with rests (`note.isRest()`).
+  - Removed `seenNotes` since OSMD's iterator when `CursorIgnoreRepetitions = true` advances strictly forward without revisiting notes. All 11 tests pass cleanly without it.
+- **wait-engine (`src/core/wait-engine.ts`)**:
+  - `#initStep` now returns `StepState` directly (throwing an error if an invalid index were ever passed) and removed the unreachable `if (!stepState)` checks in `start` and `handle`.
+  - Removed the unreachable `if (missingPitches.length === 0)` branch in `handle` during wrong-note handling.
+- **voicing (`src/core/voicing.ts`)**:
+  - Cleaned up redundant checks in `gradeVoicing`. `melodyVelocity` is checked and narrowed, and `otherVelocities` are collected and verified in a single loop over `requiredPitches(step)` without `!` or `as`, eliminating redundant loops and dead branches (`otherPitches.length === 0`, repeated `undefined` checks).
+- Ran `npm run check:task -- T09`, which passed typecheck, biome lint, and all 87 tests across 7 test suites.
